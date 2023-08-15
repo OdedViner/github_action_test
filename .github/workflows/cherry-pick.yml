@@ -18,8 +18,5 @@ jobs:
           PR_NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
           ACCESS_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           LABELS=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER" | jq -r '.labels[].name')
-          echo "::set-output name=labels::$LABELS"
-      - name: Print Merged PR Labels
-        run: |
-          echo "Merged PR Labels: ${{ steps.merged_pr.outputs.labels }}"
+          echo "Merged PR Labels: ${{ LABELS }}"
       
