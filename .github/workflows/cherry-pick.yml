@@ -33,6 +33,6 @@ jobs:
           git push origin release-1
 
           # Create a new pull request
-          gh pr create --base release --head release --title "Cherry-pick PR ${PR_NUMBER}" --body "Cherry-picking changes from PR ${PR_NUMBER}."
+          gh pr create --base release-1 --head release --title "Cherry-pick PR ${PR_NUMBER}" --body "Cherry-picking changes from PR ${PR_NUMBER}."
 
       
