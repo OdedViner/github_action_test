@@ -6,32 +6,20 @@ on:
       - closed
 
 jobs:
-  cherry-pick:
+  get_labels:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set Up Git
+      - name: Get Merged PR Labels
+        id: merged_pr
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-          # Fetch all branches and tags to ensure we have the latest references
-          git fetch --prune --unshallow --tags
-
-      - name: Cherry-Pick PR Changes
+          PR_NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+          ACCESS_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          LABELS=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER" | jq -r '.labels[].name')
+          echo "::set-output name=labels::$LABELS"
+      - name: Print Merged PR Labels
         run: |
-          # Get the PR number from the environment variable
-          PR_NUMBER=${{ github.event.pull_request.number }}
-
-          # Print the PR_NUMBER
-          echo "PR Labels: $PR_NUMBER"
-
-          # Use GitHub CLI to fetch the labels of the PR
-          PR_LABELS=$(gh pr view $PR_NUMBER --json labels.*.name --jq '.[].name')
-
-          # Print the labels
-          echo "PR Labels: $PR_LABELS"
-          
+          echo "Merged PR Labels: ${{ steps.merged_pr.outputs.labels }}"
+      
