@@ -1,0 +1,37 @@
+name: Cherry-Pick PRs to Master
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  cherry-pick:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Up Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # Fetch all branches and tags to ensure we have the latest references
+          git fetch --prune --unshallow --tags
+
+      - name: Cherry-Pick PR Changes
+        run: |
+          # Get the PR number from the environment variable
+          PR_NUMBER=${{ github.event.pull_request.number }}
+
+          # Print the PR_NUMBER
+          echo "PR Labels: $PR_NUMBER"
+
+          # Use GitHub CLI to fetch the labels of the PR
+          PR_LABELS=$(gh pr view $PR_NUMBER --json labels.*.name --jq '.[].name')
+
+          # Print the labels
+          echo "PR Labels: $PR_LABELS"
+          
