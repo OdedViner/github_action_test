@@ -28,8 +28,7 @@ jobs:
 
           # Cherry-pick the PR commit(s)
           git cherry-pick pr-${PR_NUMBER}
-          
-          # Create a new pull request
-          gh pr create --base release-1 --head release --title "Cherry-pick PR ${PR_NUMBER}" --body "Cherry-picking changes from PR ${PR_NUMBER}."
 
+          # Create a new pull request
+          gh pr create --base release-1 --head pr-${PR_NUMBER} --title "Cherry-pick PR ${PR_NUMBER}" --body "Cherry-picking changes from PR ${PR_NUMBER}."
       
