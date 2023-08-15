@@ -19,4 +19,20 @@ jobs:
           ACCESS_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           LABELS=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER" | jq -r '.labels[].name')
           echo "Labels12: $LABELS"
+
+          # Fetch PR branch
+          git fetch origin pull/${PR_NUMBER}/head:pr-${PR_NUMBER}
+
+          # Check out the release branch
+          git checkout release-1
+
+          # Cherry-pick the PR commit(s)
+          git cherry-pick pr-${PR_NUMBER}
+
+          # Push changes to the release branch
+          git push origin release-1
+
+          # Create a new pull request
+          gh pr create --base release --head release --title "Cherry-pick PR ${PR_NUMBER}" --body "Cherry-picking changes from PR ${PR_NUMBER}."
+
       
