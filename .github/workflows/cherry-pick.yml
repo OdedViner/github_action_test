@@ -12,7 +12,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Get Merged PR Labels
+      - name: Get Merged PR Labels.
         id: merged_pr
         run: |
           PR_NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
