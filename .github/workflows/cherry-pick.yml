@@ -44,10 +44,13 @@ jobs:
 
             # Check out the release branch
             git fetch --all --prune
-            git checkout ${release_label}
+            git reset --hard main
+            remote=$(git remote -v)
+            echo "$remote"
+            git checkout -b pr-${PR_NUMBER}-cherry-pick origin/$release_label
 
             # Cherry-pick the PR commit(s)
-            git cherry-pick pr-${PR_NUMBER}
+            # git cherry-pick pr-${PR_NUMBER}
 
             # Create a new pull request
             # gh pr create --base ${release_label} --head pr-${PR_NUMBER} --title "Cherry-pick PR ${PR_NUMBER}" --body "Cherry-picking changes from PR ${PR_NUMBER}."
