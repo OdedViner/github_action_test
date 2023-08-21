@@ -36,23 +36,26 @@ jobs:
           for release_label in "${release_labels[@]}"; do
               echo "12233 $release_label"
           done
+          output=$(git log "${{ github.event.pull_request.merge_commit_sha }}"^.."${{ github.event.pull_request.merge_commit_sha }}" --format="%H")
+          commit_shas=$(echo "$output" | sed '1d' | tr '\n' ' ')
+          echo "out 12: $output"
+          echo "222: $commit_shas"
 
+          # for release_label in "${release_labels[@]}"; do
+          #   # Fetch PR branch
+          #   git fetch --all --prune
+          #   git fetch origin pull/${PR_NUMBER}/head:pr-${PR_NUMBER}
+          #   git checkout pr-${PR_NUMBER}
+          #   commit=$( git rev-parse HEAD )
+            
+          #   remote=$(git remote -v)
+          #   echo "fsfsf: $remote"
+          #   git checkout -b pr-${PR_NUMBER}-cherry-pick-${release_label} origin/$release_label
 
-          for release_label in "${release_labels[@]}"; do
-            # Fetch PR branch
-            git fetch origin pull/${PR_NUMBER}/head:pr-${PR_NUMBER}
+          #   # Cherry-pick the PR commit(s)
+          #   # git cherry-pick pr-${PR_NUMBER}
 
-            # Check out the release branch
-            git fetch --all --prune
-            git reset --hard main
-            remote=$(git remote -v)
-            echo "fsfsf: $remote"
-            git checkout -b pr-${PR_NUMBER}-cherry-pick origin/$release_label
-
-            # Cherry-pick the PR commit(s)
-            # git cherry-pick pr-${PR_NUMBER}
-
-            # Create a new pull request
-            # gh pr create --base ${release_label} --head pr-${PR_NUMBER} --title "Cherry-pick PR ${PR_NUMBER}" --body "Cherry-picking changes from PR ${PR_NUMBER}."
-          done
+          #   # Create a new pull request
+          #   # gh pr create --base ${release_label} --head pr-${PR_NUMBER} --title "Cherry-pick PR ${PR_NUMBER}" --body "Cherry-picking changes from PR ${PR_NUMBER}."
+          # done
       
