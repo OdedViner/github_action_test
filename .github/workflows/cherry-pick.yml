@@ -43,7 +43,7 @@ jobs:
             git fetch origin pull/${PR_NUMBER}/head:pr-${PR_NUMBER}
 
             # Check out the release branch
-            git checkout $release_label
+            git checkout ${release_label}
 
             # Cherry-pick the PR commit(s)
             git cherry-pick pr-${PR_NUMBER}
