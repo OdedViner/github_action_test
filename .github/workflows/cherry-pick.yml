@@ -18,7 +18,26 @@ jobs:
           PR_NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
           ACCESS_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           LABELS=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER" | jq -r '.labels[].name')
-          echo "Labels12: $LABELS"
+          echo "Labels: $LABELS"
+
+          # Initialize an empty array to store the split parts
+          release_labels=()
+
+          # Use a while loop to split the LABELS
+          while IFS=" " read -r -a labels; do
+              for label in "${labels[@]}"; do
+                  if [[ $label == release* ]]; then
+                      release_labels+=("$label")
+                  fi
+              done
+          done <<< "$LABELS"
+
+          # Print the split parts
+          for release_label in "${release_labels[@]}"; do
+              echo "$release_label"
+          done
+
+
 
           # Fetch PR branch
           git fetch origin pull/${PR_NUMBER}/head:pr-${PR_NUMBER}
