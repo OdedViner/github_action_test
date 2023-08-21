@@ -34,7 +34,7 @@ jobs:
 
           # Print the split parts
           for release_label in "${release_labels[@]}"; do
-              echo "$release_label"
+              echo "12233 $release_label"
           done
 
 
@@ -43,7 +43,7 @@ jobs:
             git fetch origin pull/${PR_NUMBER}/head:pr-${PR_NUMBER}
 
             # Check out the release branch
-            git checkout release-1
+            git checkout $release_label
 
             # Cherry-pick the PR commit(s)
             git cherry-pick pr-${PR_NUMBER}
