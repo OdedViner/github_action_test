@@ -46,7 +46,7 @@ jobs:
             git fetch --all --prune
             git reset --hard main
             remote=$(git remote -v)
-            echo "$remote"
+            echo "fsfsf: $remote"
             git checkout -b pr-${PR_NUMBER}-cherry-pick origin/$release_label
 
             # Cherry-pick the PR commit(s)
