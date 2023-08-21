@@ -36,11 +36,55 @@ jobs:
           for release_label in "${release_labels[@]}"; do
               echo "12233 $release_label"
           done
-          output=$(git log "${{ github.event.pull_request.merge_commit_sha }}"^.."${{ github.event.pull_request.merge_commit_sha }}" --format="%H")
-          commit_shas=$(echo "$output" | sed '1d' | tr '\n' ' ')
-          echo "out 12: $output"
-          echo "222: $commit_shas"
+          
 
+
+
+
+
+
+          for TARGET_BRANCH in "${release_labels[@]}"; do
+            git fetch --all --prune
+
+            echo "Target release branch exists: $TARGET_BRANCH"
+            git checkout master
+            if [ "$(git rev-parse --is-shallow-repository)" == "true" ];then
+              git fetch --all --unshallow
+            else
+              git fetch --all
+            fi
+            git reset --hard origin/master
+            output=$(git log "${{ github.event.pull_request.merge_commit_sha }}"^.."${{ github.event.pull_request.merge_commit_sha }}" --format="%H")
+            commit_shas=$(echo "$output" | sed '1d' | tr '\n' ' ')
+            git checkout -b "$TARGET_BRANCH"-cherry-pick-pr-"${{ github.event.pull_request.number }}" origin/$TARGET_BRANCH
+            echo "Checked out cherry pick pr branch"
+          
+            echo "These are the commits need cherry-pick : $commit_shas"
+            git cherry-pick $commit_shas
+            echo "Cherry-picked commits"
+            # Handle any potential conflicts here if necessary
+            git push origin "$TARGET_BRANCH"-cherry-pick-pr-"${{ github.event.pull_request.number }}"
+            echo "Pushed to the Cherry-pick branch"
+            # Create a new pull request
+            curl -X POST "https://api.github.com/repos/${{ github.repository }}/pulls" \
+              -H "Authorization: token ${{ secrets.ACTION_PAT }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -d '{
+                "title": "Cherry-pick to '$TARGET_BRANCH'",
+                "body": "This PR is a cherry-pick of the changes from #${{ github.event.pull_request.number }}",
+                "head": "'$TARGET_BRANCH'-cherry-pick-pr-${{ github.event.pull_request.number }}",
+                "base": "'$TARGET_BRANCH'"
+              }'
+          done
+          
+          
+          
+          
+          
+      
+          
+
+          
           # for release_label in "${release_labels[@]}"; do
           #   # Fetch PR branch
           #   git fetch --all --prune
