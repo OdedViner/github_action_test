@@ -47,13 +47,13 @@ jobs:
             git fetch --all --prune
 
             echo "Target release branch exists: $TARGET_BRANCH"
-            git checkout master
+            git checkout main
             if [ "$(git rev-parse --is-shallow-repository)" == "true" ];then
               git fetch --all --unshallow
             else
               git fetch --all
             fi
-            git reset --hard origin/master
+            git reset --hard origin/main
             output=$(git log "${{ github.event.pull_request.merge_commit_sha }}"^.."${{ github.event.pull_request.merge_commit_sha }}" --format="%H")
             commit_shas=$(echo "$output" | sed '1d' | tr '\n' ' ')
             git checkout -b "$TARGET_BRANCH"-cherry-pick-pr-"${{ github.event.pull_request.number }}" origin/$TARGET_BRANCH
