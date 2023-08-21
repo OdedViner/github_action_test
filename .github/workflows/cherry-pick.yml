@@ -1,0 +1,54 @@
+name: Cherry-Pick PRs to Master
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  get_labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Get Merged PR Labels.
+        id: merged_pr
+        run: |
+          PR_NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+          ACCESS_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          LABELS=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER" | jq -r '.labels[].name')
+          echo "Labels: $LABELS"
+
+          # Initialize an empty array to store the split parts
+          release_labels=()
+
+          # Use a while loop to split the LABELS
+          while IFS=" " read -r -a labels; do
+              for label in "${labels[@]}"; do
+                  if [[ $label == release* ]]; then
+                      release_labels+=("$label")
+                  fi
+              done
+          done <<< "$LABELS"
+
+          # Print the split parts
+          for release_label in "${release_labels[@]}"; do
+              echo "12233 $release_label"
+          done
+
+
+          for release_label in "${release_labels[@]}"; do
+            # Fetch PR branch
+            git fetch origin pull/${PR_NUMBER}/head:pr-${PR_NUMBER}
+
+            # Check out the release branch
+            git checkout ${release_label}
+
+            # Cherry-pick the PR commit(s)
+            git cherry-pick pr-${PR_NUMBER}
+
+            # Create a new pull request
+            # gh pr create --base ${release_label} --head pr-${PR_NUMBER} --title "Cherry-pick PR ${PR_NUMBER}" --body "Cherry-picking changes from PR ${PR_NUMBER}."
+          done
+      
